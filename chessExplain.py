@@ -8,9 +8,10 @@ WIDTH, HEIGHT = 550, 400
 SCOREBOARD_WIDTH = 150  
 DIMENSION = 8  
 SQ_SIZE = HEIGHT // DIMENSION
-MAX_FPS = 30  
+MAX_FPS = 60  
 IMAGES = {}
 HIGHLIGHT_COLOR = pygame.Color('yellow')
+
 
 white_wins = 0
 black_wins = 0
@@ -74,13 +75,21 @@ def main():
             highlight_moves(screen, gs, list(gs.legal_moves), sq_selected)
 
         if game_over:
-           show_endgame_screen(screen, gs.turn)
+           
+
+           reset_button_x, reset_button_y, reset_button_width, reset_button_height = show_endgame_screen(screen, gs.turn)
+
+           
+
+
            for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     running = False
                 elif e.type == pygame.MOUSEBUTTONDOWN:
                     location = pygame.mouse.get_pos()
-                    if reset_button["x"] <= location[0] <= reset_button["x"] + reset_button["width"] and reset_button["y"] <= location[1] <= reset_button["y"] + reset_button["height"]:
+
+                    if reset_button_x <= location[0] <= reset_button_x + reset_button_width and reset_button_y <= location[1] <= reset_button_y + reset_button_height:
+
                         # Reset the game
                         gs = chess.Board()
                         game_over = False
@@ -165,15 +174,26 @@ def show_endgame_screen(screen, winner):
     if winner:
         text = font.render("Black wins!", True, text_color)
     else:
-        text = font.render("White wins!", True, text_color)
-    screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+        text = font.render("Checkmate! White wins!", True, text_color)
 
-    # Draw the reset button
-    pygame.draw.rect(screen, pygame.Color("black"), (reset_button["x"], reset_button["y"], reset_button["width"], reset_button["height"]))
-    reset_text = reset_font.render(reset_button["text"], True, "white")
-    screen.blit(reset_text, (reset_button["x"] + reset_button["width"] // 2 - reset_text.get_width() // 2, reset_button["y"] + reset_button["height"] // 2 - reset_text.get_height() // 2))
+    chessboard_center_x = 200
+    text_x = chessboard_center_x - text.get_width() // 2
+    text_y = (HEIGHT-50) // 2 - text.get_height() // 2
+    screen.blit(text, (text_x, text_y))
+
+    
+    reset_button_x = chessboard_center_x - reset_button["width"] // 2
+    reset_button_y = text_y + text.get_height() + 20 
+
+    
+    pygame.draw.rect(screen, pygame.Color("black"), (reset_button_x, reset_button_y, reset_button["width"], reset_button["height"]))
+    reset_text = reset_font.render(reset_button["text"], True, pygame.Color("white"))
+    screen.blit(reset_text, (reset_button_x + reset_button["width"] // 2 - reset_text.get_width() // 2, reset_button_y + reset_button["height"] // 2 - reset_text.get_height() // 2))
 
     pygame.display.flip()
+
+    return reset_button_x, reset_button_y, reset_button["width"], reset_button["height"]
+
 
 
 if __name__ == "__main__":
